@@ -1,4 +1,4 @@
-package handler
+package og
 
 import (
 	"bytes"
@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/muesli/smartcrop"
-	"github.com/muesli/smartcrop/nfnt"
+	"github.com/recoilme/smartcrop"
+	"github.com/recoilme/smartcrop/nfnt"
 )
 
 var (
@@ -69,7 +69,7 @@ func log(a ...interface{}) (n int, err error) {
 		}
 	}
 	if isError {
-		fmt.Println(os.Stderr, buf.String())
+		fmt.Fprintln(os.Stderr, buf.String())
 	}
 	return fmt.Fprintln(os.Stdout, buf.String())
 }
@@ -129,6 +129,7 @@ func crop(rc io.ReadCloser, ar float64, cntType string) ([]byte, string, error) 
 		vertical = false
 	}
 	_ = vertical
+
 	analyzer := smartcrop.NewAnalyzer(nfnt.NewDefaultResizer())
 	rect, err := analyzer.FindBestCrop(img, min, min)
 

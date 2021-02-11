@@ -17,7 +17,8 @@ import (
 )
 
 func Test_Tguitarist(t *testing.T) {
-	bin, err := ioutil.ReadFile("1.jpg")
+
+	bin, err := ioutil.ReadFile("3.jpg")
 	assert.NoError(t, err)
 	img, _, err := image.Decode(bytes.NewReader(bin))
 	assert.NoError(t, err)

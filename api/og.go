@@ -9,7 +9,6 @@ import (
 	"image"
 	"image/jpeg"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"reflect"
@@ -78,7 +77,7 @@ func log(a ...interface{}) (n int, err error) {
 // imgLoad load image data
 func imgLoad(imgURL string) ([]byte, string, error) {
 	log("imgLoad", imgURL)
-	limitRead := 512
+	//limitRead := 512
 	ctx, cncl := context.WithTimeout(context.Background(), time.Second*10)
 	defer cncl()
 
@@ -99,13 +98,13 @@ func imgLoad(imgURL string) ([]byte, string, error) {
 		return nil, "", errors.New(errURLLoad)
 	}
 
-	head, err := ioutil.ReadAll(io.LimitReader(resp.Body, int64(limitRead)))
+	/*head, err := ioutil.ReadAll(io.LimitReader(resp.Body, int64(limitRead)))
 	if err != nil {
 		fmt.Println(err, imgURL)
 		return nil, "", err
-	}
+	}*/
 
-	cntType := strings.ToLower(http.DetectContentType(head))
+	cntType := "image/jpeg" //strings.ToLower(http.DetectContentType(head))
 	//log.Println(cntType)
 	if !strings.HasPrefix(cntType, "image") {
 		return nil, "", errors.New(errURLLoad)
@@ -117,6 +116,7 @@ func imgLoad(imgURL string) ([]byte, string, error) {
 func crop(rc io.ReadCloser, ar float64, cntType string) ([]byte, string, error) {
 	log("crop")
 	img, _, err := image.Decode(rc)
+
 	if err != nil {
 		return nil, "", err
 	}

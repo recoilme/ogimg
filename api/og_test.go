@@ -11,6 +11,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	_ "golang.org/x/image/webp"
+
+	//"golang.org/x/image/webp"
 	"github.com/recoilme/smartcrop"
 	"github.com/recoilme/smartcrop/nfnt"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +21,7 @@ import (
 
 func Test_Tguitarist(t *testing.T) {
 
-	bin, err := ioutil.ReadFile("3.jpg")
+	bin, err := ioutil.ReadFile("4.webp")
 	assert.NoError(t, err)
 	img, _, err := image.Decode(bytes.NewReader(bin))
 	assert.NoError(t, err)

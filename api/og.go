@@ -22,7 +22,7 @@ import (
 var (
 	//errors
 	errURLLoad  = "Error: load url"
-	aspectRatio = 1.0
+	aspectRatio = 1.9
 )
 
 type SubImager interface {

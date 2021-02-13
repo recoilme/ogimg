@@ -20,7 +20,7 @@ import (
 )
 
 func Test_Tguitarist(t *testing.T) {
-	rc, err := fileReader("3.jpg")
+	rc, err := fileReader("0.jpg")
 	assert.NoError(t, err)
 	defer rc.Close()
 	bin, _, err := crop(rc, 1.9, "")

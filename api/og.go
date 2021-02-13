@@ -15,9 +15,10 @@ import (
 	"strings"
 	"time"
 
-	_ "golang.org/x/image/bmp"
+	_ "golang.org/x/image/bmp" // bmp
 	_ "golang.org/x/image/webp"
 
+	"github.com/katera/og"
 	"github.com/recoilme/smartcrop"
 	"github.com/recoilme/smartcrop/nfnt"
 )
@@ -39,15 +40,30 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		vals := r.URL.Query()
 		url := vals.Get("url")
-		if path == "/" && url == "" {
+		ogurl := vals.Get("og")
+		if path == "/" && (url == "" && ogurl == "") {
+			w.Write([]byte([]byte("no og or url param")))
 			w.WriteHeader(200)
 			return
 		}
-		//res, err := og.GetOpenGraphFromUrl("https://hackernoon.com/golang-clean-archithecture-efd6d7c43047")
+		if ogurl != "" {
+			res, err := og.GetOpenGraphFromUrl(url)
+			if err != nil {
+				log("ogurl err", err)
+				w.Write([]byte(err.Error()))
+				w.WriteHeader(404)
+				return
+			}
+			if res != nil && res.Images != nil && len(res.Images) > 0 {
+				url = res.Images[0].URL
+			}
+			//fmt.Fprintf(w, "%+v", res)
+		}
 
 		bin, cntType, err := imgLoad(url)
 		if err != nil {
 			log("imgLoad err", err)
+			w.Write([]byte(err.Error()))
 			w.WriteHeader(404)
 			return
 		}
@@ -56,6 +72,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	default:
 		log("wrong params")
+		w.Write([]byte([]byte("use get and og or url param")))
 		w.WriteHeader(503)
 		return
 	}

@@ -148,6 +148,7 @@ func crop(rc io.ReadCloser, ar float64, cntType string) ([]byte, string, error) 
 
 	deltaAr := ar - float64(imgar)
 	deltaAr = math.Abs(deltaAr)
+	//fmt.Println(deltaAr, imgar, ar)
 
 	var rect image.Rectangle
 	if deltaAr < 0.5 {
@@ -164,7 +165,8 @@ func crop(rc io.ReadCloser, ar float64, cntType string) ([]byte, string, error) 
 		_ = vertical
 
 		analyzer := smartcrop.NewAnalyzer(nfnt.NewDefaultResizer())
-		rect, err := analyzer.FindBestCrop(img, min, min)
+		rect, err = analyzer.FindBestCrop(img, min, min)
+		//fmt.Println(rect.Bounds().String())
 		if err != nil {
 			return nil, "", err
 		}

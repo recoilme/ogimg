@@ -47,7 +47,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if ogurl != "" {
-			res, err := og.GetOpenGraphFromUrl(url)
+			res, err := og.GetOpenGraphFromUrl(ogurl)
 			if err != nil {
 				log("ogurl err", err)
 				w.Write([]byte("ogurl:" + url + " err:" + err.Error()))

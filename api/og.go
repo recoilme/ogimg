@@ -9,6 +9,7 @@ import (
 	"image"
 	"image/jpeg"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"reflect"
@@ -140,32 +141,43 @@ func crop(rc io.ReadCloser, ar float64, cntType string) ([]byte, string, error) 
 	if err != nil {
 		return nil, "", err
 	}
-
-	// ищем самый интересный квадрат
-	min := img.Bounds().Max.X
-	vertical := true
-	if img.Bounds().Max.Y < min {
-		min = img.Bounds().Max.Y
-		vertical = false
+	if img.Bounds().Max.Y == 0 {
+		return nil, "", errors.New("empty image")
 	}
-	_ = vertical
+	imgar := float64(img.Bounds().Max.X) / float64(img.Bounds().Max.Y)
 
-	analyzer := smartcrop.NewAnalyzer(nfnt.NewDefaultResizer())
-	rect, err := analyzer.FindBestCrop(img, min, min)
+	deltaAr := ar - float64(imgar)
+	deltaAr = math.Abs(deltaAr)
 
-	// берем от топ до ширина/отношение_сторон
-	rect.Max.Y = int(float64(min)/ar) + rect.Min.Y
+	var rect image.Rectangle
+	if deltaAr < 0.5 {
+		rect = img.Bounds()
+		rect.Max.Y = int(float64(rect.Max.X) * ar)
+	} else {
+		// ищем самый интересный квадрат
+		min := img.Bounds().Max.X
+		vertical := true
+		if img.Bounds().Max.Y < min {
+			min = img.Bounds().Max.Y
+			vertical = false
+		}
+		_ = vertical
+
+		analyzer := smartcrop.NewAnalyzer(nfnt.NewDefaultResizer())
+		rect, err := analyzer.FindBestCrop(img, min, min)
+		if err != nil {
+			return nil, "", err
+		}
+
+		// берем от топ до ширина/отношение_сторон
+		rect.Max.Y = int(float64(min)/ar) + rect.Min.Y
+	}
 	cropImage := img.(interface {
 		SubImage(r image.Rectangle) image.Image
 	}).SubImage(rect)
 
-	//sub, ok := img.(SubImager)
-	//if ok {
-	//cropImage := sub.SubImage(rect)
 	buf := new(bytes.Buffer)
 	//TODO CONVERT BY CONTENT TYPE
 	jpeg.Encode(buf, cropImage, &jpeg.Options{Quality: 100})
 	return buf.Bytes(), "image/jpeg", nil
-	//}
-	//return nil, "", errors.New("No SubImage support")
 }
